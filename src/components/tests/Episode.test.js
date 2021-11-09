@@ -30,9 +30,24 @@ test("renders without error", () => {
 
 test("renders the summury test passed as prop", () => {
   render(<Episode episode={testEpisode} />)
+  const selectEpisode = screen.queryByText(/season 1, episode 1/i)
+  const runTime = screen.queryByText(/1 minutes/i)
+  const image = screen.queryByRole("img")
+
+  expect(selectEpisode).toBeInTheDocument()
+  expect(runTime).toBeInTheDocument()
+  expect(image).toHaveAttribute(
+    "src",
+    "http://static.tvmaze.com/uploads/images/medium_landscape/67/168918.jpg"
+  )
 })
 
-test("renders default image when image is not defined", () => {})
+test("renders default image when image is not defined", () => {
+  render(<Episode episode={testEpisodeWithoutImage} />)
+  const image = screen.queryByAltText("./stranger_things.png")
+
+  expect(image).toBeInTheDocument()
+})
 
 //Tasks
 //1. Complete a test that shows the Episode component renders. Pass in the provided example episode data as a test prop.
