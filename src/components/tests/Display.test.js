@@ -1,6 +1,9 @@
 import React from "react"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import Display from "../Display"
+import userEvent from "@testing-library/user-event"
+import mockFetchShow from "../../api/fetchShow"
+jest.mock("../../api/fetchShow.js")
 
 test("test if Display component renders without any passed in props", () => {
   render(<Display />)
@@ -20,8 +23,25 @@ const testEpisode = {
   runtime: 1,
 }
 
-test("when the fetch button is pressed, the show component will display", () => {
+test("when the fetch button is pressed, the show component will display", async () => {
   render(<Display />)
+  const button = screen.getByRole("button")
+  userEvent.click(button)
+
+  const findContainer = await screen.findByTestId("show-container")
+  expect(findContainer).toBeInTheDocument()
+})
+
+test("when fetch button is pressed, amount of selected options rendered is equal to amount of seasons is test data", async () => {
+  mockFetchShow.mockResolvedValueOnce(testEpisode)
+  const displayFunction = jest.fn()
+  render(<Display displayFunction={displayFunction} />)
+  const button = screen.getByRole("button")
+  userEvent.click(button)
+
+  await waitFor(() => {
+    expect(displayFunction).toHaveBeenCalled()
+  })
 })
 
 //3. Rebuild or copy a show test data element as used in the previous set of tests.
