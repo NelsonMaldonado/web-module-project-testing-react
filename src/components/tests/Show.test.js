@@ -1,27 +1,85 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 
-import Show from './../Show';
+import Show from "./../Show"
 
 const testShow = {
-    //add in approprate test data structure here.
+  //add in approprate test data structure here.
+  name: "Test Show",
+  seasons: [
+    {
+      id: 0,
+      name: "Test Season 1",
+      episodes: [],
+    },
+    {
+      id: 1,
+      name: "Test Season 2",
+      episodes: [],
+    },
+    {
+      id: 2,
+      name: "Test Season 3",
+      episodes: [],
+    },
+    {
+      id: 3,
+      name: "Test Season 4",
+      episodes: [],
+    },
+  ],
+  summary: "Test Summary",
 }
 
-test('renders testShow and no selected Season without errors', ()=>{
-});
+test("renders testShow and no selected Season without errors", () => {
+  render(<Show show={testShow} selectedSeason={"none"} />)
+})
 
-test('renders Loading component when prop show is null', () => {
-});
+test("renders Loading component when prop show is null", () => {
+  render(<Show show={null} />)
+  const loadingContainer = screen.queryByTestId("loading-container")
+  const showContainer = screen.queryByText("show-container")
 
-test('renders same number of options seasons are passed in', ()=>{
-});
+  expect(loadingContainer).toBeInTheDocument()
+  expect(showContainer).not.toBeInTheDocument()
+})
 
-test('handleSelect is called when an season is selected', () => {
-});
+test("renders same number of options seasons are passed in", () => {
+  render(<Show show={testShow} selectedSeason={"none"} />)
+  const seasonDropDown = screen.queryAllByTestId("season-option")
+  expect(seasonDropDown).toHaveLength(4)
+  expect(seasonDropDown).not.toHaveLength(10)
+})
 
-test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
-});
+test("handleSelect is called when an season is selected", () => {
+  const handleSelectMock = jest.fn()
+
+  render(
+    <Show
+      show={testShow}
+      selectedSeason={"none"}
+      handleSelect={handleSelectMock}
+    />
+  )
+  const seasonDropDown = screen.queryByLabelText(/select a season/i)
+  userEvent.selectOptions(seasonDropDown, ["1"])
+  expect(handleSelectMock).toBeCalledTimes(1)
+})
+
+test("component renders when no seasons are selected and when rerenders with a season passed in", () => {
+  const { rerender } = render(<Show show={testShow} selectedSeason={"none"} />)
+
+  let episodesContainer = screen.queryByTestId("episodes-container")
+
+  expect(episodesContainer).not.toBeInTheDocument()
+
+  rerender(<Show show={testShow} selectedSeason={"1"} />)
+
+  episodesContainer = screen.queryByTestId("episodes-container")
+
+  expect(episodesContainer).toBeInTheDocument()
+})
 
 //Tasks:
 //1. Build an example data structure that contains the show data in the correct format. A show should contain a name, a summary and an array of seasons, each with a id, name and (empty) list of episodes within them. Use console.logs within the client code if you need to to verify the structure of show data.
